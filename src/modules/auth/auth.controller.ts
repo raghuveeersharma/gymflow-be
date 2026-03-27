@@ -3,10 +3,12 @@ import { authService } from './auth.service';
 import { ApiResponse } from '../../shared/ApiResponse';
 import { env } from '../../config/env';
 
+const isProduction = env.NODE_ENV === 'production';
+
 const COOKIE_OPTIONS = {
   httpOnly: true,
-  secure: env.NODE_ENV === 'production',
-  sameSite: 'lax' as const,
+  secure: isProduction,
+  sameSite: isProduction ? 'none' as const : 'lax' as const,
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
 };
 
@@ -29,7 +31,7 @@ export const authController = {
   },
 
   async logout(_req: Request, res: Response): Promise<void> {
-    res.clearCookie('token', { httpOnly: true, secure: env.NODE_ENV === 'production', sameSite: 'strict' as const });
+    res.clearCookie('token', { httpOnly: true, secure: isProduction, sameSite: isProduction ? 'none' as const : 'lax' as const });
     ApiResponse.success(res, undefined, 'Logged out successfully');
   },
 };
